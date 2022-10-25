@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <title>Q10</title>
+</head>
+
+<body>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .form {
+            height: 90VH;
+            width: 30VW;
+            align-items: center;
+            padding: 20px;
+            margin-left: 30VW;
+            margin-top: 5VH;
+            font-family: Arial;
+            border: 2px solid black;
+
+        }
+
+        input[type=text],
+        input[type=date],
+        input[type=email],
+        select,
+        textarea {
+            width: 100%;
+            box-sizing: border-box;
+            /* margin-top: 5px; */
+            margin-bottom: 10px;
+        }
+
+        input[type=text],
+        input[type=date],
+        input[type=email],
+        select {
+            height: 40px;
+        }
+        input[type="submit"]{
+            width: 100px;
+            height: 30px;
+            background-color: rgb(206, 255, 93);
+            border: none;
+        }
+        .sm {
+            
+            font-size: 10pt;
+            
+        }
+
+        .main {
+            
+            font-size: 24pt;
+            font-weight: bold;
+            
+        }
+        .sm{
+            display: flex;
+            flex-direction: row;
+            margin-bottom: 10px;
+            margin-top:20px;
+        }
+        .dropdown{
+            margin-right: 15px;
+            margin-top:10px;
+        }
+    </style>
+
+    <div class="form">
+        <h1 class="main">Fill You interests</h1>
+        <p class="sm">Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente, fugit.</p>
+
+        <!-- <form name="myForm" action="/action_page.php" onsubmit="return validateForm()" method="post" required> -->
+
+
+        <form name="interestForm" action="" onsubmit="return validateForm()" required>
+            <label for="name" class="sm" id="name">Name</label>
+            <input type="text" name="user-name">
+            <p id="name-invalid"></p>
+            <label for="email" class="sm">Email</label>
+            <input type="text" name="user-email">
+            <p id="email-invalid"></p>
+            <label for="dob" class="sm">DOB</label>
+            <input type="date" name="user-dob">
+            <p id="dob-invalid"></p>
+
+            <label for="Interest" class="sm">Select your Interest</label>
+            <select id="Interest" name="user-interest">
+
+                <option value="select">-Select-</option>
+                <option value="Web Development">Web Development</option>
+                <option value="SQA">SQA</option>
+                <option value="Business Analysis">Business Analysis</option>
+
+            </select>
+            <p id="interest-invalid"></p>
+
+            <div class="dropdown"> <input type="radio" name="choose" >
+                  <label for="individual" class="dropdown">Individual</label>
+                <input type="radio" name="choose" >
+                <label for="organization">Organization</label>
+            </div>
+
+
+            <label for="description" class="sm">About You</label>
+            <textarea rows="8" id="description"></textarea>
+            <button type="submit" id="submit"> Send Detail </button>
+          
+           
+        </form>
+    </div>
+    <script>
+         validateForm=()=>{
+            let valName=document.forms["interestForm"]["user-name"].value;
+            let valEmail=document.forms["interestForm"]["user-email"].value;
+            let valDob=document.forms["interestForm"]["user-dob"].value;
+            let valSelect=document.forms["interestForm"]["user-interest"].value;
+            let mailformat= /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;  
+            // name verification
+            if(valName.length>50){
+            document.getElementById("name-invalid").innerHTML="Character Limit Exceeds";
+            document.getElementById("name-invalid").style.color="red";
+            document.forms["interestForm"]["user-name"].style.borderColor="red";
+            return false;
+            }
+            else if(valName==""){
+            document.getElementById("name-invalid").innerHTML="Name cannot be empty";
+            document.getElementById("name-invalid").style.color="red";
+            document.forms["interestForm"]["user-name"].style.borderColor="red";
+            return false
+            }
+            //email verification
+
+            if(valEmail.length==""){
+            document.getElementById("email-invalid").innerHTML="Email can not be empty";
+            document.getElementById("email-invalid").style.color="red";
+            document.forms["interestForm"]["user-email"].style.borderColor="red";
+            return false;
+            }
+            else if(!valEmail.match(mailformat)){
+                document.getElementById("email-invalid").innerHTML="invalid email";
+            document.getElementById("email-invalid").style.color="red";
+            document.forms["interestForm"]["user-email"].style.borderColor="red";
+            return false;
+            }
+            // DOB verification
+            if(valDob.length==""){
+                document.getElementById("dob-invalid").innerHTML="DOB can not be empty";
+                document.getElementById("dob-invalid").style.color="red";
+                return false;
+            }
+            
+            else if(valDob.length>0){
+                let dob = new Date(valDob);
+                let monthDif = (Date.now() - dob.getTime());
+                let diffDateFor = new Date(monthDif);
+                let year = diffDateFor.getUTCFullYear();
+                if(Math.abs(year - 1970 )<= 13){
+                document.getElementById("dob-invalid").innerHTML="Hello! kid, you are too young for this";
+                document.getElementById("dob-invalid").style.color="red";
+                
+                }
+                return false;
+            }
+            
+            // interest verifaction
+            if(valSelect=="select"){
+                document.getElementById("interest-invalid").innerHTML="Please Select Value to Proceed";
+                document.getElementById("interest-invalid").style.color="red";
+                console.log(valSelect);
+                return false;
+            }
+            
+
+
+            
+        }
+    </script>
+</body>
+
+</html>
