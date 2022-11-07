@@ -1,0 +1,244 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using System.Reflection.Metadata.Ecma335;
+using Microsoft.AspNetCore.Identity;
+using static System.Reflection.Metadata.BlobBuilder;
+
+namespace third
+{
+    [Route("library")]
+    [ApiController]
+    public class CollectionController : ControllerBase
+    {
+
+        private ICollection _logger;
+        public CollectionController(ICollection logger)
+        {
+            _logger = logger;
+        }
+
+
+        //task3
+        [HttpGet("BookNames")]
+        public IEnumerable<string> GetName()
+        {
+            List<Book> books = _logger.GetBook();
+
+            var names = from book in books select book.name;
+            return names;
+        }
+
+        //task5 half
+        [HttpGet("getbookdetail/{id}")]
+
+
+        public IActionResult getbookdetail(int id)
+        {
+            List<Book> books = _logger.GetBook();
+            Book bookDetail = (from book in books where book.id == id select book).FirstOrDefault();
+            if (bookDetail == null)
+            {
+                return NotFound("Book is issued by a user");
+            }
+            else
+            {
+                return Ok(bookDetail);
+            }
+
+        }
+
+        //task7
+        [HttpPost("addbook")]
+
+        public List<Book> bookaddition([FromBody] Book newbook)
+        {
+
+            List<Book> books = _logger.GetBook();
+            _logger.Add(newbook);
+            books.Add(newbook);
+
+            return books;
+        }
+      
+
+
+        //task9
+        [HttpPut("udatebook/p{id}")]
+
+        public List<Book> bookupdate(int id, [FromBody] Book upbook)
+        {
+            List<Book> books = _logger.GetBook();
+            Book booktoupdate = (from book in books where book.id == id select book).FirstOrDefault();
+            
+
+            books[books.IndexOf(booktoupdate)].name = upbook.name;
+            books[books.IndexOf(booktoupdate)].price = upbook.price;
+
+
+            return books;
+
+        }
+
+        //task12
+        [HttpDelete("deletebook/{id}")]
+
+        public IActionResult delete(int id)
+        {
+            List<Book> books = _logger.GetBook();
+            List<User> userss = _logger.GetUser();
+            Book bookDetail = (from book in books where book.id == id select book).FirstOrDefault();
+            
+
+
+            User check = (from user in userss where ((from book in user.userBookList select book).FirstOrDefault()).id == id select user).FirstOrDefault();
+
+
+
+            if (bookDetail == null && check == null)
+            {
+
+                return NotFound("The book doesn't exist");
+            }
+            else if (check != null)
+            {
+                //
+                //int index = check.userBookList.IndexOf((from book in check.userBookList where book.id==id select book).FirstOrDefault() );
+                Book booko = (from book in check.userBookList where book.id == id select book).FirstOrDefault();
+                int index2 = userss.IndexOf(check);
+                userss[index2].userBookList.Remove(booko);
+
+                return Ok(userss);
+            }
+            else
+            {
+                books.Remove(books[books.IndexOf(bookDetail)]);
+                return Ok("removed from books");
+            }
+
+        }
+
+        //end of books___________________________________________________
+
+        //task4 and task8
+        [HttpPost("adduser")]
+
+        public List<User> useraddition([FromBody] User newuser)
+
+        {  
+            List<Book> books = _logger.GetBook();
+            List<User> userss = _logger.GetUser();
+
+            if (newuser.ids != null)
+            {
+                foreach (int item in newuser.ids)
+                {
+                    newuser.userBookList.Add((from book in books where book.id == item select book).FirstOrDefault());
+                }
+
+            }
+
+            User userobj = new User
+            {
+                userName = newuser.userName,
+                userID = newuser.userID,
+                userBookList = newuser.userBookList
+
+            };
+
+            userss.Add(userobj);
+
+            return userss;
+        }
+
+        //task10 + task11
+        [HttpPut("updateuser/{userid}")]
+        public IActionResult bookupdate(int userid, [FromBody] User upuser)
+        {
+            List<User> userss = _logger.GetUser();
+            List<Book> books = _logger.GetBook();
+
+            if (upuser.ids != null)
+            {
+                //add in library
+                List<Book> userupbooks = new List<Book>();
+               
+                
+                if(userss[userid - 1].userBookList != null)
+                {
+                    foreach (var item in userss[userid - 1].userBookList)
+                    {
+                        books.Add(item);
+                    }
+                    userss[userid - 1].userBookList = null;
+                }
+                
+
+
+                // issue task
+                int count = 0;
+                foreach (int item in upuser.ids)
+                {
+                    // upuser.userBookList
+                    Book addUserRemLibrary = (from book in books where book.id == item select book).FirstOrDefault();
+                    if (addUserRemLibrary == null)
+                    {
+                        count++;
+                    }
+                    userupbooks.Add(addUserRemLibrary);
+                    books.Remove(addUserRemLibrary);
+                }
+
+
+
+                if (count == upuser.ids.Count)
+                {
+                    return NotFound("All books are already issued by user");
+                }
+                userss[userid - 1].userBookList = userupbooks;
+            }
+
+            userss[userid - 1].userName = upuser.userName;
+            return Ok(userss);
+
+        }
+        //task6
+
+        [HttpGet("getusers/{userid}")]
+
+        public IActionResult getuser(int userid)
+        {
+
+            List<User> userss = _logger.GetUser();
+            var oneuser = from user in userss where user.userID == userid select user;
+
+
+            return Ok(oneuser);
+        }
+
+        //task13
+        [HttpDelete("deluser/{userid}")]
+
+        public IActionResult delUser(int userid)
+        {
+
+            List<User> userss = _logger.GetUser();
+            User oneuser = (from user in userss where user.userID == userid select user).FirstOrDefault();
+            if (oneuser.userBookList == null)
+            {
+                userss.Remove(oneuser);
+                return Ok(userss);
+            }
+            else
+            {
+                return NotFound("This user has some books");
+            }
+        }
+
+    }
+
+}
