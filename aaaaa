@@ -1,0 +1,8 @@
+   public static IServiceCollection AddMyDependencyGroup(
+            this IServiceCollection services)
+        {
+            services.AddScoped<IBook, Bookdata>();
+            services.AddScoped<IMyDependency2, MyDependency2>();
+
+            return services;
+        }
