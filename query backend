@@ -1,0 +1,104 @@
+use [4369-Umar Asif];
+
+--Task 1
+CREATE TABLE Weather (
+	id INT,
+	recordDate DATE,
+	temperature INT,
+	PRIMARY KEY (id),
+);
+
+--Task 2
+CREATE TABLE weather_details (
+	Desc_id INT,
+	tempID INT,
+	Details VARCHAR(255),
+	PRIMARY KEY (Desc_id),
+	FOREIGN KEY (tempID) REFERENCES Weather(id)
+);
+
+--Task 3
+EXEC sp_rename 'weather_details.tempID','temperatureID','column';
+
+--Task 4
+INSERT INTO Weather
+VALUES  (1, '2022-01-22', 33),
+		(2, '2021-03-11', 45),
+		(3, '2020-05-11', 26);
+		
+INSERT INTO weather_details
+VALUES  (1,1,'foggy'),
+		(2,1,'rainy'),
+		(3,2,'hot'),
+		(4,3,'cold');
+
+SELECT * FROM weather_details;
+
+SELECT * FROM Weather;
+
+--Addition data for task 5
+INSERT INTO Weather
+VALUES  (4, '2022-01-22', 39);
+
+INSERT INTO Weather
+VALUES  (5, '2023-01-22', 44);
+
+INSERT INTO Weather
+VALUES  (6, '2022-02-22', 18);
+
+INSERT INTO Weather
+VALUES  (7, '2022-12-22', 02);
+
+--Task 5
+SELECT * FROM Weather
+WHERE temperature > 35 AND YEAR(recordDate) = 2022;
+
+--Task 6
+SELECT Weather.id, weather_details.Details, Weather.temperature, Weather.recordDate 
+FROM WEATHER JOIN weather_details
+ON YEAR(recordDate) = 2021 AND weather_details.temperatureID = Weather.id;
+
+--Task 7 using select
+SELECT 
+	temperature AS "temperature_C", 
+	(temperature * 9 / 5) + 32 AS "temperature_F"
+FROM Weather;
+
+--Task 7 using Update
+UPDATE Weather
+SET temperature =(temperature * 9 / 5) + 32;
+
+SELECT * FROM Weather;
+
+--Task 8
+UPDATE weather_details
+SET Details = 'stormy'
+WHERE Details = 'rainy';
+
+SELECT * FROM weather_details;
+
+--Task 9
+DELETE FROM Weather
+WHERE recordDate > GETDATE();
+
+SELECT * FROM Weather;
+
+--Task 10
+DELETE FROM Weather;
+
+--Task 11
+TRUNCATE TABLE weather_details;
+
+--Task 12
+DROP TABLE weather_details;
+DROP TABLE Weather;
+
+ALTER TABLE Weather
+DELETE CONSTRAINT weather_details
+FOREIGN KEY (tempID)
+REFERENCES Weather(id)
+ON DELETE CASCADE;
+
+ALTER TABLE Weather
+DROP CONSTRAINT tempID;
+
